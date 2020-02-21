@@ -8,7 +8,6 @@ import microservices.book.gamification.domain.GameStats;
 import microservices.book.gamification.domain.ScoreCard;
 import microservices.book.gamification.repository.BadgeCardRepository;
 import microservices.book.gamification.repository.ScoreCardRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,15 +38,6 @@ class GameServiceImplTest {
     @InjectMocks
     private GameServiceImpl gameService;
 
-    @BeforeEach
-    public void setUp() {
-        // Common given - attempt does not contain a lucky number by default
-        MultiplicationResultAttempt attempt = new MultiplicationResultAttempt(
-                "john_doe", 20, 70, 1400, true);
-        given(multiplicationClient.retrieveMultiplicationResultAttemptbyId(anyLong()))
-                .willReturn(attempt);
-    }
-
     @Test
     public void processFirstCorrectAttemptTest() {
         // given
@@ -55,11 +45,17 @@ class GameServiceImplTest {
         Long attemptId = 8L;
         int totalScore = 10;
         ScoreCard scoreCard = new ScoreCard(userId, attemptId);
+        MultiplicationResultAttempt attempt = new MultiplicationResultAttempt(
+                "john_doe", 20, 70, 1400, true);
+        // attempt does not contain a lucky number by default
+        given(multiplicationClient.retrieveMultiplicationResultAttemptbyId(anyLong()))
+                .willReturn(attempt);
         given(scoreCardRepository.getTotalScoreForUser(userId))
                 .willReturn(totalScore);
         // this repository will return the just-won score card
         given(scoreCardRepository.findByUserIdOrderByScoreTimestampDesc(userId))
                 .willReturn(Collections.singletonList(scoreCard));
+        // this repository will return empty list badge card
         given(badgeCardRepository.findByUserIdOrderByBadgeTimestampDesc(userId))
                 .willReturn(Collections.emptyList());
 
@@ -79,6 +75,11 @@ class GameServiceImplTest {
         Long attemptId = 29L;
         int totalScore = 100;
         BadgeCard firstWonBadge = new BadgeCard(userId, Badge.FIRST_WON);
+        MultiplicationResultAttempt attempt = new MultiplicationResultAttempt(
+                "john_doe", 20, 70, 1400, true);
+        // attempt does not contain a lucky number by default
+        given(multiplicationClient.retrieveMultiplicationResultAttemptbyId(anyLong()))
+                .willReturn(attempt);
         given(scoreCardRepository.getTotalScoreForUser(userId))
                 .willReturn(totalScore);
         // this repository will return the just-won score card
@@ -131,15 +132,6 @@ class GameServiceImplTest {
         // given
         Long userId = 1L;
         Long attemptId = 8L;
-        int totalScore = 10;
-        ScoreCard scoreCard = new ScoreCard(userId, attemptId);
-        given(scoreCardRepository.getTotalScoreForUser(userId))
-                .willReturn(totalScore);
-        // this repository will return the just-won score card
-        given(scoreCardRepository.findByUserIdOrderByScoreTimestampDesc(userId))
-                .willReturn(Collections.singletonList(scoreCard));
-        given(badgeCardRepository.findByUserIdOrderByBadgeTimestampDesc(userId))
-                .willReturn(Collections.emptyList());
 
         // when
         GameStats iteration = gameService.newAttemptForUser(userId, attemptId, false);
@@ -170,8 +162,7 @@ class GameServiceImplTest {
 
     private List<ScoreCard> createNScoreCards(int n, Long userId) {
         return IntStream.range(0, n)
-                .mapToObj(i -> new ScoreCard(userId, (long)i))
+                .mapToObj(i -> new ScoreCard(userId, (long) i))
                 .collect(Collectors.toList());
     }
-
 }
