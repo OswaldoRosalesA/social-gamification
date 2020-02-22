@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/stats")
 public class UserStatsController {
 
-    private GameService gameService;
+    private final GameService gameService;
 
     @GetMapping
-    public GameStats getStatsForUser(@RequestParam("userId") final Long userId){
+    public GameStats getStatsForUser(@RequestParam("userId") final Long userId) {
         return gameService.retrieveStatsForUser(userId);
     }
 
