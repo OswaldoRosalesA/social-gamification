@@ -14,10 +14,10 @@ spring:
       path: /h2
 
 server:
-  port: 8001
+  port: 8081
 
 # REST client settings
-multiplicationHost: http://localhost:8000
+multiplicationHost: http://localhost:8000/api
 
 ## RabbitMQ configuration
 multiplication:
