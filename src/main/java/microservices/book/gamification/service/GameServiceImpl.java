@@ -103,6 +103,11 @@ public class GameServiceImpl implements GameService {
         return new GameStats(userId, score, badges);
     }
 
+    @Override
+    public ScoreCard getScoreForAttempt(long attemptId) {
+        return scoreCardRepository.findScoreCardByAttemptId(attemptId);
+    }
+
     /**
      * Convenience method to check the current score against
      * the different thresholds to gain badges.
